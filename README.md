@@ -1,40 +1,48 @@
 # FitLog — Workout Library
 
-FitLog is a dark, no-nonsense workout library and daily training log built from the supplied Figma-style reference. It lets users browse twelve workouts, open a detail page, add up to five lifts to today's plan, save workouts for later, mark planned lifts as done, remove items, and keep the plan after a reload.
+FitLog is a dark, no-nonsense workout library and daily training log built to match the supplied FitLog reference design. It uses the provided FitLog API for all workout data, lets users browse and sort the library, open individual workout details, add up to five lifts to today's plan, save workouts for later, mark planned lifts as done, remove items, and persist plan/saved state across reloads.
 
 ## Technologies
 
-- Next.js App Router
-- React + TypeScript
+- Next.js 16 App Router
+- React 19 + TypeScript
 - Tailwind CSS v4
-- Headless UI for the Sort By menu
 - Lucide React for icons
 - Next.js Image component
 - Browser localStorage for persistence
-- Next.js Route Handlers for the workout API
+- Next.js Route Handlers as a server-side proxy for the supplied FitLog API
 - Vercel-ready deployment setup
+
+## FitLog API
+
+The project consumes the supplied API:
+
+- All workouts: `https://api.abcz.workers.dev/api/fitlog`
+- Single workout: `https://api.abcz.workers.dev/api/fitlog/:id`
+
+The app normalizes the API response into the UI's workout model while preserving the API's workout names, images, muscle groups, equipment, difficulty, sets, reps, duration, calories, rating, descriptions, and instructions.
 
 ## Key Features
 
 1. Responsive FitLog navbar with live Plan and Saved counters.
-2. Hero banner with anchor navigation to the workout library.
+2. Reference-matched hero banner using the supplied hero artwork and anchor navigation to the library.
 3. Twelve-workout API-backed library with responsive 3-column desktop grid.
-4. Sort By dropdown for Duration, Calories, and Rating.
+4. Sort By control for Duration, Calories, and Rating, with Duration selected by default.
 5. Dynamic workout detail pages with specs, instructions, and action buttons.
 6. My Plan page with live exercise, minute, and calorie metrics.
 7. Today's Plan / Saved tabs with View Details, Mark as Done, and Remove actions.
-8. Toast notifications, loading states, 404 handling, five-lift daily cap, and localStorage persistence.
+8. Toast notifications, loading states, custom 404 handling, five-lift daily cap, and localStorage persistence.
 
 ## Routes
 
 - `/` — workout library
 - `/workouts/[id]` — workout detail page
 - `/my-plan` — today's plan and saved workouts
-- `/api/workouts` — workout API
-- `/api/workouts/[id]` — individual workout API
+- `/api/workouts` — server-side API proxy for all workouts
+- `/api/workouts/[id]` — server-side API proxy for one workout
 - any unknown route — custom 404 page
 
-## Run locally
+## Run Locally
 
 Requirements: Node.js 20.9 or newer and npm.
 
@@ -45,7 +53,7 @@ npm run dev
 
 Open `http://localhost:3000` in your browser.
 
-## Production check
+## Production Check
 
 ```bash
 npm run build
@@ -54,22 +62,13 @@ npm run start
 
 The production build should finish without errors before deployment.
 
-## Git history requirement
+## Git History Requirement
 
-The project is prepared to be committed in small, meaningful steps. For the assignment, make at least eight commits. Suggested messages:
-
-1. `created Next.js app structure`
-2. `added FitLog global styling and responsive layout`
-3. `added workout API and library data`
-4. `added responsive workout library cards`
-5. `added workout detail page and actions`
-6. `added My Plan and Saved tabs`
-7. `added persistence, toasts, sorting, and loading states`
-8. `added README and final deployment polish`
+The project contains at least eight meaningful commits covering the main implementation stages. Keep those commits when pushing the project to GitHub.
 
 ## Deployment
 
-Deploy the repository to Vercel, Netlify, Cloudflare Pages, or another Next.js-compatible host. The app uses normal App Router routes and API Route Handlers, so do not configure it as a static-only export.
+Deploy the repository to Vercel, Netlify, Cloudflare Pages, or another Next.js-compatible host. Do not configure the app as a static-only export because it uses App Router routes and server-side API Route Handlers.
 
 Before submitting:
 
@@ -80,7 +79,7 @@ Before submitting:
 - Add a workout, reload, and confirm it remains in the plan.
 - Save a workout, reload, and confirm it remains saved.
 - Test the five-workout cap.
-- Test the Sort By menu.
+- Test Duration, Calories, and Rating sorting.
 - Test mobile, tablet, and desktop widths.
 
 ## Submission
@@ -88,7 +87,3 @@ Before submitting:
 Live Link: `PASTE YOUR DEPLOYMENT URL HERE`
 
 GitHub Repository Link: `PASTE YOUR GITHUB URL HERE`
-
-## Final QA
-
-The project includes the supplied reference-inspired visual treatment and a self-contained local workout dataset exposed through Next.js Route Handlers.

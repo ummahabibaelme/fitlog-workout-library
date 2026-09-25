@@ -1,8 +1,6 @@
 'use client';
 
-import Image from 'next/image';
 import { ChevronDown, Dumbbell } from 'lucide-react';
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { useEffect, useMemo, useState } from 'react';
 import type { Workout } from '@/lib/workouts';
 import { WorkoutCard } from '@/components/workout-card';
@@ -11,16 +9,15 @@ export default function HomePage() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState<'duration' | 'calories' | 'rating'>('duration');
-  const sortLabels = { duration: 'Duration', calories: 'Calories', rating: 'Rating' } as const;
 
   useEffect(() => {
     const load = async () => {
       try {
-        await new Promise((resolve) => window.setTimeout(resolve, 550));
+        await new Promise((resolve) => window.setTimeout(resolve, 450));
         const response = await fetch('/api/workouts', { cache: 'no-store' });
         if (!response.ok) throw new Error('Failed to fetch workouts');
         const data = await response.json();
-        setWorkouts(data.workouts);
+        setWorkouts(data.workouts ?? []);
       } catch {
         setWorkouts([]);
       } finally {
@@ -30,9 +27,10 @@ export default function HomePage() {
     load();
   }, []);
 
-  const sortedWorkouts = useMemo(() => {
-    return [...workouts].sort((a, b) => b[sort] - a[sort]);
-  }, [workouts, sort]);
+  const sortedWorkouts = useMemo(
+    () => [...workouts].sort((a, b) => b[sort] - a[sort]),
+    [workouts, sort]
+  );
 
   return (
     <div className="page-shell">
@@ -43,8 +41,8 @@ export default function HomePage() {
           <p>FitLog is a dark, no-nonsense gym companion: pick a lift, lock it into today&apos;s plan, and watch the week&apos;s work add up.</p>
           <a href="#library" className="primary-btn"><Dumbbell size={14} /> BROWSE WORKOUTS</a>
         </div>
-        <div className="hero-art">
-          <Image src="/images/hero-workout.jpg" alt="Workout illustration" fill priority sizes="(max-width: 900px) 100vw, 45vw" />
+        <div className="hero-art" aria-hidden="true">
+          <img src="/images/hero-bike.png" alt="" />
         </div>
       </section>
 
@@ -55,17 +53,22 @@ export default function HomePage() {
             <p>Twelve lifts covering every major muscle group.</p>
           </div>
           <div className="library-controls">
-            <span className="sort-label">SORT BY</span>
-            <Menu as="div" className="sort-wrap">
-              <MenuButton className="sort-select">{sortLabels[sort]}<ChevronDown size={13} /></MenuButton>
-              <MenuItems anchor="bottom end" className="sort-menu">
-                {(Object.keys(sortLabels) as Array<keyof typeof sortLabels>).map((option) => (
-                  <MenuItem key={option}>
-                    <button className="sort-option" onClick={() => setSort(option)}>{sortLabels[option]}</button>
-                  </MenuItem>
-                ))}
-              </MenuItems>
-            </Menu>
+            <label className="sort-control">
+              <span className="sort-label">SORT BY</span>
+              <span className="sort-select-wrap">
+                <select
+                  className="sort-select"
+                  value={sort}
+                  onChange={(event) => setSort(event.target.value as typeof sort)}
+                  aria-label="Sort workouts by"
+                >
+                  <option value="duration">Duration</option>
+                  <option value="calories">Calories</option>
+                  <option value="rating">Rating</option>
+                </select>
+                <ChevronDown size={13} aria-hidden="true" />
+              </span>
+            </label>
           </div>
         </div>
 
