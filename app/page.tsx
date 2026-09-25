@@ -5,42 +5,82 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Workout } from '@/lib/workouts';
 import { WorkoutCard } from '@/components/workout-card';
 
+type SortOption = 'duration' | 'calories' | 'rating';
+
 export default function HomePage() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sort, setSort] = useState<'duration' | 'calories' | 'rating'>('duration');
+  const [sort, setSort] = useState<SortOption>('duration');
 
   useEffect(() => {
-    const load = async () => {
+    const loadWorkouts = async () => {
       try {
         await new Promise((resolve) => window.setTimeout(resolve, 450));
-        const response = await fetch('/api/workouts', { cache: 'no-store' });
-        if (!response.ok) throw new Error('Failed to fetch workouts');
+
+        const response = await fetch('/api/workouts', {
+          cache: 'no-store',
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch workouts');
+        }
+
         const data = await response.json();
         setWorkouts(data.workouts ?? []);
-      } catch {
+      } catch (error) {
+        console.error('Failed to load workouts:', error);
         setWorkouts([]);
       } finally {
         setLoading(false);
       }
     };
-    load();
+
+    loadWorkouts();
   }, []);
 
-  const sortedWorkouts = useMemo(
-    () => [...workouts].sort((a, b) => b[sort] - a[sort]),
-    [workouts, sort]
-  );
+  const sortedWorkouts = useMemo(() => {
+    const sorted = [...workouts];
+
+    sorted.sort((a, b) => {
+      if (sort === 'duration') {
+        return a.duration - b.duration;
+      }
+
+      if (sort === 'calories') {
+        return a.calories - b.calories;
+      }
+
+      if (sort === 'rating') {
+        return b.rating - a.rating;
+      }
+
+      return 0;
+    });
+
+    return sorted;
+  }, [workouts, sort]);
 
   return (
     <div className="page-shell">
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero-copy">
           <div className="eyebrow">WORKOUT LIBRARY</div>
-          <h1 id="hero-title">TRAIN WITH INTENT. LOG EVERY SET.</h1>
-          <p>FitLog is a dark, no-nonsense gym companion: pick a lift, lock it into today&apos;s plan, and watch the week&apos;s work add up.</p>
-          <a href="#library" className="primary-btn"><Dumbbell size={14} /> BROWSE WORKOUTS</a>
+
+          <h1 id="hero-title">
+            TRAIN WITH INTENT. LOG EVERY SET.
+          </h1>
+
+          <p>
+            FitLog is a dark, no-nonsense gym companion: pick a lift, lock it
+            into today&apos;s plan, and watch the week&apos;s work add up.
+          </p>
+
+          <a href="#library" className="primary-btn">
+            <Dumbbell size={14} />
+            BROWSE WORKOUTS
+          </a>
         </div>
+
         <div className="hero-art" aria-hidden="true">
           <img src="/images/hero-bike.png" alt="" />
         </div>
@@ -52,33 +92,53 @@ export default function HomePage() {
             <h2 id="library-title">THE LIBRARY</h2>
             <p>Twelve lifts covering every major muscle group.</p>
           </div>
+
           <div className="library-controls">
-            <label className="sort-control">
+            <div className="sort-control">
               <span className="sort-label">SORT BY</span>
-              <span className="sort-select-wrap">
+
+              <div className="sort-select-wrap">
                 <select
                   className="sort-select"
                   value={sort}
-                  onChange={(event) => setSort(event.target.value as typeof sort)}
+                  onChange={(event) =>
+                    setSort(event.target.value as SortOption)
+                  }
                   aria-label="Sort workouts by"
                 >
                   <option value="duration">Duration</option>
                   <option value="calories">Calories</option>
                   <option value="rating">Rating</option>
                 </select>
-                <ChevronDown size={13} aria-hidden="true" />
-              </span>
-            </label>
+
+                <ChevronDown
+                  className="sort-chevron"
+                  size={16}
+                  aria-hidden="true"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
         {loading ? (
-          <div className="loading-grid" aria-label="Loading workouts">
-            {Array.from({ length: 12 }).map((_, index) => <div className="skeleton" key={index} />)}
+          <div
+            className="loading-grid"
+            aria-label="Loading workouts"
+            aria-live="polite"
+          >
+            {Array.from({ length: 12 }).map((_, index) => (
+              <div className="skeleton" key={index} />
+            ))}
           </div>
-        ) : sortedWorkouts.length ? (
+        ) : sortedWorkouts.length > 0 ? (
           <div className="workout-grid">
-            {sortedWorkouts.map((workout) => <WorkoutCard workout={workout} key={workout.id} />)}
+            {sortedWorkouts.map((workout) => (
+              <WorkoutCard
+                workout={workout}
+                key={workout.id}
+              />
+            ))}
           </div>
         ) : (
           <div className="empty-state">
