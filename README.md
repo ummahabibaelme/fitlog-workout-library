@@ -88,3 +88,7 @@ Before submitting:
 Live Link: `PASTE YOUR DEPLOYMENT URL HERE`
 
 GitHub Repository Link: `PASTE YOUR GITHUB URL HERE`
+
+## Final QA
+
+The project includes the supplied reference-inspired visual treatment and a self-contained local workout dataset exposed through Next.js Route Handlers.
